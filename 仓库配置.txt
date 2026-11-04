@@ -1,0 +1,6 @@
+# 数据托管仓库，一行，格式：用户名/仓库名
+# 例如：zhangsan/arknights-event-calc
+# 填了之后：页面打开时会去这个仓库拉最新的活动数据，分享卡片的图片地址也会变成绝对地址
+# 留空则只走本地服务，分享出去可能不带预览图
+
+BX-ZERO/arknights-event-calc
