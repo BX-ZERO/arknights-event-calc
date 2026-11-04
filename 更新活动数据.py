@@ -4,7 +4,7 @@
 用法：
     更新活动数据.py "活动名"
 不带参数时交互输入。抓取 PRTS wiki 的活动页，生成同目录的
-「活动代币计算器.html」以及数据快照「活动数据.json」。
+「index.html」以及数据快照「活动数据.json」。
 """
 import urllib.request, urllib.parse, json, re, sys, io, time, os, base64
 import html as _html_lib

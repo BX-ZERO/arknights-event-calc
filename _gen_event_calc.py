@@ -73,7 +73,7 @@ HTML = r'''<!DOCTYPE html>
 <meta name="twitter:description" content="勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。">
 <meta name="twitter:image" content="__OGURL__">
 <title>活动代币计算器</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3QgeD0iMyIgeT0iMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjI4IiByeD0iNSIgZmlsbD0iIzA0ODhhOSIvPjxyZWN0IHg9IjgiIHk9IjYiIHdpZHRoPSIxNiIgaGVpZ2h0PSI3IiByeD0iMiIgZmlsbD0iIzA0ODhhOSIvPjxnIGZpbGw9IiMwNDg4YTkiPjxyZWN0IHg9IjgiIHk9IjE2IiB3aWR0aD0iNSIgaGVpZ2h0PSI0LjUiIHJ4PSIxLjIiLz48cmVjdCB4PSIxMy41IiB5PSIxNiIgd2lkdGg9IjUiIGhlaWdodD0iNC41IiByeD0iMS4yIi8+PHJlY3QgeD0iMTkiIHk9IjE2IiB3aWR0aD0iNSIgaGVpZ2h0PSI0LjUiIHJ4PSIxLjIiLz48cmVjdCB4PSI4IiB5PSIyMiIgd2lkdGg9IjUiIGhlaWdodD0iNC41IiByeD0iMS4yIi8+PHJlY3QgeD0iMTMuNSIgeT0iMjIiIHdpZHRoPSI1IiBoZWlnaHQ9IjQuNSIgcng9IjEuMiIvPjxyZWN0IHg9IjE5IiB5PSIyMiIgd2lkdGg9IjUiIGhlaWdodD0iNC41IiByeD0iMS4yIi8+PC9nPjwvc3ZnPg==">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3QgeD0iMiIgeT0iMSIgd2lkdGg9IjI4IiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzA0ODhhOSIvPjxyZWN0IHg9IjciIHk9IjUuNSIgd2lkdGg9IjE4IiBoZWlnaHQ9IjcuNSIgcng9IjIuMiIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjciIHk9IjE3IiB3aWR0aD0iMTgiIGhlaWdodD0iMTAuNSIgcng9IjIuMiIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==">
 <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <link rel="alternate icon" href="icon.png">
 <style>
@@ -1535,6 +1535,7 @@ function staleKind(){
   return null;
 }
 function openModal(){
+  closeNoticeDetail();                 // 两个弹窗不叠在一起
   var m = document.getElementById('modal');
   if (m) m.classList.add('on');
 }
@@ -1571,8 +1572,22 @@ function showSyncModal(forceType, forceName){
       (hit ? hit.start : '—') + '</b>。';
   }
   if (line1) line1.classList.add('flashline');
+  // 取列表里那条通知的真实 id（可能是 act: / first: / phase: 三种之一）
+  var _k = (info.type === 'phase') ? 'phase' : 'act';
+  var _c = collectNotices().filter(function(n){ return n.kind === _k; })[0];
+  window._curNoticeId = _c ? _c.id : '';
   openModal();
+  refreshModalNext();
   return true;
+}
+/* 大弹窗底部「下一条」：还有没读的就显示，点了一条条看完 */
+function refreshModalNext(){
+  var btn = document.getElementById('modalNext');
+  if (!btn) return;
+  var read = _readIds();
+  var un = collectNotices().filter(function(n){ return read.indexOf(n.id) < 0; });
+  btn.style.display = un.length ? '' : 'none';
+  btn.textContent = un.length > 1 ? ('下一条（还有 ' + un.length + ' 条）') : '下一条';
 }
 setTimeout(function(){
   if (typeof collectNotices !== 'function') return;
@@ -1600,6 +1615,15 @@ function _ls(k, v){
 function _readIds(){
   try{ return JSON.parse(_ls(NOTICE_READ) || '[]'); }catch(e){ return []; }
 }
+function purgeOldNotes(){
+  try{
+    var arr = JSON.parse(localStorage.getItem('ark_notices') || '[]');
+    var keep = arr.filter(function(x){ return !/^newact:/.test(String(x.id)); });
+    if (keep.length !== arr.length){
+      localStorage.setItem('ark_notices', JSON.stringify(keep));
+    }
+  }catch(e){}
+}
 function _storedNotes(){
   try{ return JSON.parse(localStorage.getItem('ark_notices') || '[]'); }catch(e){ return []; }
 }
@@ -1622,7 +1646,8 @@ function collectNotices(){
   var curAct = (DATA.activity && DATA.activity.title) || '';
   // 弹过又关掉的，都留在这儿
   _storedNotes().forEach(function(x){
-    if (x.act && x.act !== curAct) return;   // 只留当前活动的
+    if (/^newact:/.test(String(x.id))) return;   // 旧版本留下的重复通知，直接丢
+    if (x.act && x.act !== curAct) return;       // 只留当前活动的
     out.push(x);
   });
   // 同步时发现活动换了，记一条
@@ -1640,14 +1665,6 @@ function collectNotices(){
         t: '活动已开启',
         b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点右上角「同步最新数据」再取一次。'});
     }
-  }
-  if (sw && sw.name && sw.name === title0){
-    pushNotice({id: 'newact:' + sw.name, act: sw.name, kind: 'act', k: '活动',
-      t: '新活动已开启',
-      b: '「' + sw.name + '」已经开放，页面上的数据刚刚换成了这个活动的。想确认是最新的，点右上角「同步最新数据」再取一次。'});
-    out.push({id: 'newact:' + sw.name, kind: 'act', k: '活动',
-      t: '新活动已开启',
-      b: '「' + sw.name + '」已经开放，页面上的数据刚刚换成了这个活动的。想确认是最新的，点右上角「同步最新数据」再取一次。'});
   }
   var info = (typeof staleKind === 'function') ? staleKind() : null;
   var title = (DATA.activity && DATA.activity.title) || '活动';
@@ -1699,7 +1716,10 @@ function renderNotices(list){
     return '<div class="nitem ' + n.kind + (un ? ' unread' : '') + '" data-i="' + i + '" tabindex="0">' +
       '<div class="nt2"><span class="nk">' + n.k + '</span>' + n.t +
       (un ? '<span class="nun">未读</span>' : '') + '</div>' +
-      '<div class="nb">' + n.b.slice(0, 46) + (n.b.length > 46 ? '…' : '') + '</div></div>';
+      '<div class="nb">' + (function(){
+        var plain = String(n.b).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+        return plain.slice(0, 46) + (plain.length > 46 ? '…' : '');
+      })() + '</div></div>';
   }).join('');
   window._noticeList = list;
   body.querySelectorAll('.nitem').forEach(function(el){
@@ -1748,7 +1768,9 @@ function markReadOne(id){
   renderNotices(collectNotices());
 }
 function openNoticeDetail(n){
+  closeModal();                        // 两个弹窗不叠在一起
   markReadOne(n.id);
+  window._curNoticeId = n.id;
   var m = document.getElementById('nmodal');
   if (!m) return;
   var tt = document.getElementById('ntt');
@@ -1767,6 +1789,7 @@ function closeNoticeDetail(){
   if (m) m.classList.remove('on');
 }
 function initNotify(){
+  purgeOldNotes();
   var btn = document.getElementById('notifyBtn');
   var close = document.getElementById('npClose');
   if (btn) btn.addEventListener('click', function(e){
@@ -1807,9 +1830,37 @@ function initNotify(){
 
 function bindModal(){
   var c = document.getElementById('modalClose');
-  if (c) c.addEventListener('click', closeModal);
+  if (c) c.addEventListener('click', function(){
+    if (window._curNoticeId){
+      markReadOne(window._curNoticeId);   // 大弹窗点知道了也算读过
+      window._curNoticeId = '';
+    }
+    closeModal();
+  });
+  var nx = document.getElementById('modalNext');
+  if (nx) nx.addEventListener('click', function(){
+    if (window._curNoticeId){
+      markReadOne(window._curNoticeId);
+      window._curNoticeId = '';
+    }
+    var read = _readIds();
+    var un = collectNotices().filter(function(n){ return read.indexOf(n.id) < 0; });
+    if (!un.length){ closeModal(); return; }
+    var n = un[0];
+    if (n.kind === 'act' || n.kind === 'phase'){
+      showSyncModal(n.kind === 'phase' ? 'phase' : 'newact', n.nm || '');
+    } else {
+      openNoticeDetail(n);
+    }
+  });
   var m = document.getElementById('modalMask');
-  if (m) m.addEventListener('click', closeModal);
+  if (m) m.addEventListener('click', function(){
+    if (window._curNoticeId){
+      markReadOne(window._curNoticeId);
+      window._curNoticeId = '';
+    }
+    closeModal();
+  });
 }
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') closeModal();
@@ -1832,6 +1883,7 @@ document.addEventListener('keydown', function(e){
       </p>
     </div>
     <div class="mact">
+      <button id="modalNext" style="display:none">下一条</button>
       <button id="modalClose">知道了</button>
     </div>
   </div>
@@ -1848,13 +1900,15 @@ html = html.replace('__REPO__', repo)
 html = html.replace('__OGURL__', og_url)
 html = html.replace('__SITEURL__', site_url)
 
-out = os.path.join(BASE, '活动代币计算器.html')
+out = os.path.join(BASE, 'index.html')
 with open(out, 'w', encoding='utf-8') as f:
     f.write(html)
 say('written:', out, len(html), 'chars')
 
-# 发布用副本：GitHub Pages 认 index.html
-pub = os.path.join(BASE, 'index.html')
-with open(pub, 'w', encoding='utf-8') as f:
-    f.write(html)
-say('written:', pub, len(html), 'chars')
+# 老版本会同时生成一份中文名的副本，现在不再生成；若还存在就一并删除
+_stale = os.path.join(BASE, '活动代币计算器.html')
+if os.path.exists(_stale):
+    try:
+        os.remove(_stale)
+    except OSError:
+        pass
