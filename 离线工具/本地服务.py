@@ -30,9 +30,8 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 def _find_root():
     """本脚本可能被放在「离线工具」子目录里，页面和数据在上一层。"""
     for d in (APP_DIR, os.path.dirname(APP_DIR)):
-        for f in ('index.html', '活动代币计算器.html'):
-            if os.path.exists(os.path.join(d, f)):
-                return d
+        if os.path.exists(os.path.join(d, 'index.html')):
+            return d
     return APP_DIR
 
 
@@ -52,7 +51,9 @@ def fetch_module():
     global _fetch_module
     if _fetch_module is not None:
         return _fetch_module
-    path = os.path.join(ROOT, '更新活动数据.py')
+    path = os.path.join(ROOT, '工具', '更新活动数据.py')
+    if not os.path.exists(path):
+        path = os.path.join(ROOT, '更新活动数据.py')
     spec = importlib.util.spec_from_file_location('arkfetch', path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -125,7 +126,7 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path.startswith('/api/update'):
             self.handle_update()
         elif self.path in ('/', '/index.html'):
-            self.serve_file(os.path.join(ROOT, '活动代币计算器.html'), 'text/html; charset=utf-8')
+            self.serve_file(os.path.join(ROOT, 'index.html'), 'text/html; charset=utf-8')
         elif self.path.split('?')[0] in ('/活动数据.js', '/%E6%B4%BB%E5%8A%A8%E6%95%B0%E6%8D%AE.js'):
             # 优先给用户目录里最新的那份
             p = DATA_JS
