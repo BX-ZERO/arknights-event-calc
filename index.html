@@ -1561,6 +1561,15 @@ function _ls(k, v){
 function _readIds(){
   try{ return JSON.parse(_ls(NOTICE_READ) || '[]'); }catch(e){ return []; }
 }
+function purgeOldNotes(){
+  try{
+    var arr = JSON.parse(localStorage.getItem('ark_notices') || '[]');
+    var keep = arr.filter(function(x){ return !/^newact:/.test(String(x.id)); });
+    if (keep.length !== arr.length){
+      localStorage.setItem('ark_notices', JSON.stringify(keep));
+    }
+  }catch(e){}
+}
 function _storedNotes(){
   try{ return JSON.parse(localStorage.getItem('ark_notices') || '[]'); }catch(e){ return []; }
 }
@@ -1583,7 +1592,8 @@ function collectNotices(){
   var curAct = (DATA.activity && DATA.activity.title) || '';
   // 弹过又关掉的，都留在这儿
   _storedNotes().forEach(function(x){
-    if (x.act && x.act !== curAct) return;   // 只留当前活动的
+    if (/^newact:/.test(String(x.id))) return;   // 旧版本留下的重复通知，直接丢
+    if (x.act && x.act !== curAct) return;       // 只留当前活动的
     out.push(x);
   });
   // 同步时发现活动换了，记一条
@@ -1725,6 +1735,7 @@ function closeNoticeDetail(){
   if (m) m.classList.remove('on');
 }
 function initNotify(){
+  purgeOldNotes();
   var btn = document.getElementById('notifyBtn');
   var close = document.getElementById('npClose');
   if (btn) btn.addEventListener('click', function(e){
