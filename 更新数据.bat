@@ -4,7 +4,7 @@ cd /d "%~dp0"
 title 活动代币计算器 - 数据更新
 
 set PYTHONIOENCODING=utf-8
-set "SCRIPT=%~dp0更新活动数据.py"
+set "SCRIPT=%~dp0工具\更新活动数据.py"
 
 rem 1) 开发机自带的运行时，别处没有，找不到就算了
 if exist "%USERPROFILE%\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\python\python.exe" (
