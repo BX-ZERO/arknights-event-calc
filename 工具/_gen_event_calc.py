@@ -599,7 +599,7 @@ HTML = r'''<!DOCTYPE html>
     代币与理智 1:1，普通关每 1 理智掉 1 个「__TOKEN__」。首通奖励不计入刷取折算。<br>
     勾选「要换」＝这件算进计划；「已换」填你已经买掉的数量，会从还差里扣除。<br>
     数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以手动点击「同步最新数据」。换活动时用「导入本地文件」。<br>
-     非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.0.2</span>
+     非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.0.3</span>
   </div>
 </div>
 
@@ -631,7 +631,7 @@ HTML = r'''<!DOCTYPE html>
 <input type="file" id="fileInput" accept=".json" hidden>
 
 <script id="DATA" type="application/json">__PAYLOAD__</script>
-<script src="活动数据.js" onerror="void 0"></script>
+<script src="活动数据.js?v=__DATAVER__" onerror="void 0"></script>
 <script>
 var DATA = (window.__ACTIVITY_DATA__) || JSON.parse(document.getElementById('DATA').textContent);
 
@@ -1515,11 +1515,22 @@ function remoteSources(){
 }
 function loadScript(url, timeout){
   return new Promise(function(resolve, reject){
+    var prev = window.__ACTIVITY_DATA__;
     var s = document.createElement('script');
     var done = false;
     var timer = setTimeout(function(){ if (!done){ done = true; s.remove(); reject(new Error('timeout')); } }, timeout || 6000);
     s.src = url;
-    s.onload = function(){ if (!done){ done = true; clearTimeout(timer); resolve(); } };
+    s.onload = function(){
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      // 这个脚本会直接改 window.__ACTIVITY_DATA__。要是它比手里这份旧
+      // （jsDelivr 缓存没刷新就会这样），把原来的换回去，别让旧数据顶掉新的
+      var got = window.__ACTIVITY_DATA__;
+      var gB = parseDT(got && got.built), pB = parseDT(prev && prev.built);
+      if (got && prev && gB && pB && gB <= pB) window.__ACTIVITY_DATA__ = prev;
+      resolve();
+    };
     s.onerror = function(){ if (!done){ done = true; clearTimeout(timer); s.remove(); reject(new Error('error')); } };
     document.head.appendChild(s);
   });
@@ -1603,18 +1614,11 @@ function pollRemote(){
     var d = window.__ACTIVITY_DATA__;
     if (!d || !d.shop || !d.activity) return;
     if (d.built && d.built === DATA.built) return;   // 数据没变，什么都不做
+    // 远程拿到的是 CDN 缓存里的旧版？那就别换，也别通知
+    var dB = parseDT(d.built), cB = parseDT(DATA.built);
+    if (dB && cB && dB <= cB) return;
     var nm = d.activity.name || d.activity.title || '';
-    applyData(d, true);
-    pushNotice({
-      id: 'poll:' + (d.built || String(Date.now())),
-      act: d.activity.title || '',
-      kind: 'info',
-      k: '数据',
-      t: '已自动更新到最新',
-      b: '页面数据已经换成了 ' + (d.built || '最新') + ' 抓的版本。'
-    });
-    renderNotices(collectNotices());
-    toast('检测到新数据，已自动更新');
+    applyData(d, true);        // 静默换掉：不弹提示、不推通知，用户自己会看到数据时间变了
   }).catch(function(){ _polling = false; });
 }
 setInterval(pollRemote, POLL_MS);
@@ -2076,6 +2080,7 @@ html = html.replace('__PAYLOAD__', payload)
 html = html.replace('__REPO__', repo)
 html = html.replace('__OGURL__', og_url)
 html = html.replace('__SITEURL__', site_url)
+html = html.replace('__DATAVER__', str(data.get('built') or '0').replace(' ', '-').replace(':', ''))
 
 out = os.path.join(BASE, 'index.html')
 with open(out, 'w', encoding='utf-8') as f:
