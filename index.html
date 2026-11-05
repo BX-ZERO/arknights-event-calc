@@ -324,7 +324,32 @@
     .group .body{overflow:hidden;min-width:0}
     .group.collapsed .body{display:none}
     .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;max-width:100%}
-    .tscroll table{min-width:100%}
+    /* 表格给足最小宽度，让它横向滚动，别把名字挤成一字一行 */
+    /* 提示框在窄屏一律换行，倒计时也允许折行 */
+    #notice,#notice *{white-space:normal!important;word-break:break-word!important;
+      overflow-wrap:anywhere!important}
+    #notice{max-width:100%}
+    #notice{overflow:hidden;max-width:100%}
+    #notice .nt{display:block;flex:1 1 0;min-width:0;width:0;overflow:hidden}
+    html,body{overflow-x:hidden}
+    .wrap{overflow-x:hidden}
+    .notice .nt,.notice .nt .sub,.hint,.meta,.lead{
+      white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+    .notice .nt{min-width:0;flex:1 1 auto}
+    .notice .nt .cd{white-space:normal!important}
+    .bhead{flex-wrap:wrap;gap:6px}
+    .ghead{row-gap:6px}
+    .mbox{max-width:calc(100vw - 28px);min-height:0;margin:7vh auto 0;padding:20px 18px}
+    .mtt{font-size:16px}
+    .mbody{font-size:13px}
+    .mact{flex-wrap:wrap;gap:8px}
+    .mact button{flex:1 1 auto;min-width:0}
+    .tscroll table{min-width:620px;table-layout:auto}
+    .tscroll td:nth-child(2),.tscroll th:nth-child(2){min-width:150px}
+    .tscroll td:nth-child(2){white-space:nowrap}
+    .tscroll td:nth-child(2) .tag{white-space:nowrap}
+    /* 右上角两个悬浮按钮在小屏会盖住分组标题，挪到右下 */
+    #warnIcon,.themebtn,.theme-btn,#themeBtn{top:auto!important;bottom:64px!important}
     .tscroll th:nth-child(1),.tscroll td:nth-child(1){width:42px!important;padding-left:4px;padding-right:4px}
     .tscroll th:nth-child(3),.tscroll td:nth-child(3){width:56px!important;padding-left:4px;padding-right:4px}
     .tscroll th:nth-child(4),.tscroll td:nth-child(4){width:74px!important;padding-left:4px;padding-right:4px}
@@ -481,7 +506,7 @@
     <b style="color:var(--text)">说明</b><br>
     代币与理智 1:1，普通关每 1 理智掉 1 个「失效的记录」。首通奖励不计入刷取折算。<br>
     勾选「要换」＝这件算进计划；「已换」填你已经买掉的数量，会从还差里扣除。<br>
-    数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以在右上角手动同步。换活动时用「导入本地文件」。<br>
+    数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以手动点击「同步最新数据」。换活动时用「导入本地文件」。<br>
      非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.0.1</span>
   </div>
 </div>
@@ -792,7 +817,7 @@ function renderNotice(){
     warn = left < 3600000;
     html = '距离「<b>' + np.name + '</b>」开放还有 ' +
       '<span class="cd">' + fmtCd(left) + '</span>' +
-      '<span class="sub">开放时间 ' + np.start + '。届时请点右上角「同步最新数据」，新关卡的掉落数据才会进来。</span>';
+      '<span class="sub">开放时间 ' + np.start + '。届时请点击「同步最新数据」按钮，新关卡的掉落数据才会进来。</span>';
   } else if (en && now > en){
     warn = true;
     if (se && now <= se){
@@ -814,7 +839,7 @@ function renderNotice(){
   if (built){
     var ageH = (now - built) / 3600000;
     if (ageH >= 20)
-      html += '<span class="sub">数据抓取自 ' + DATA.built + '，已经不是今天的了，建议点右上角「同步最新数据」。</span>';
+      html += '<span class="sub">数据抓取自 ' + DATA.built + '，已经不是今天的了，建议点击「同步最新数据」按钮。</span>';
   }
   box.className = 'notice show' + (warn ? ' notice-warn' : '');
   var ico = isCd
@@ -1619,7 +1644,7 @@ function collectNotices(){
       try{ localStorage.setItem('ark_seen_act', JSON.stringify(seen)); }catch(e){}
       pushNotice({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
         t: '活动已开启',
-        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点右上角「同步最新数据」再取一次。'});
+        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
     }
   }
   var info = (typeof staleKind === 'function') ? staleKind() : null;
@@ -1627,17 +1652,17 @@ function collectNotices(){
   if (info && info.type === 'newact'){
     pushNotice({id: 'act:' + title, act: title, kind: 'act', k: '活动',
       t: '新活动已开启',
-      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点右上角「同步最新数据」，最新的商店和关卡才会进来。'});
+      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点击「同步最新数据」按钮，最新的商店和关卡才会进来。'});
     out.push({id: 'act:' + title, kind: 'act', k: '活动',
       t: '新活动已开启',
-      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点右上角「同步最新数据」，最新的商店和关卡才会进来。'});
+      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点击「同步最新数据」按钮，最新的商店和关卡才会进来。'});
   } else if (info && info.type === 'phase'){
     pushNotice({id: 'phase:' + info.name, act: title, kind: 'phase', nm: info.name, k: '新关卡',
       t: '新关卡已开启',
-      b: '「' + info.name + '」已经开放。点右上角「同步最新数据」，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
+      b: '「' + info.name + '」已经开放。点击「同步最新数据」按钮，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
     out.push({id: 'phase:' + info.name, kind: 'phase', k: '新关卡',
       t: '新关卡已开启',
-      b: '「' + info.name + '」已经开放。点右上角「同步最新数据」，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
+      b: '「' + info.name + '」已经开放。点击「同步最新数据」按钮，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
   }
   {
     var rp = (typeof REPO === 'string' && REPO && REPO.indexOf('__') !== 0) ? REPO : '';
@@ -1824,7 +1849,7 @@ document.addEventListener('keydown', function(e){
     <div class="mbody">
       <p id="modalLine1">关卡「<b id="modalPhase">—</b>」现已开启，开放时间 <b id="modalWhen">—</b>。</p>
       <div id="modalSteps">
-      <p class="mstep"><span class="mn">1</span>请点击右上角<b>「同步最新数据」</b>按钮，更新数据。</p>
+      <p class="mstep"><span class="mn">1</span>请点击<b>「同步最新数据」</b>按钮，更新数据。</p>
       <p class="mstep"><span class="mn">2</span>若更新数据失败，请点击<b>「导入本地文件」</b>手动更新：<span id="modalDl">去项目仓库下载 <code>活动数据.json</code>，再选中这个文件。</span></p>
       <p class="mignore">如果页面上的数据已经是最新的，忽略这条提醒。</p>
       <p>若都无法更新成功，请等待网站作者更新数据，或前往仓库下载完整文件运行脚本。</p>
