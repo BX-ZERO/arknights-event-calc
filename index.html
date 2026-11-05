@@ -1517,7 +1517,10 @@ function reloadData(silent){
         var dB = parseDT(d.built), cB = parseDT(DATA.built);
         if (dB && cB && dB <= cB){
           setSyncState('', '');
-          return finish(silent ? '' : '线上数据还是 ' + (d.built || '旧的') + '，比本地这份旧，已保留本地数据');
+          if (dB === cB){
+            return finish(silent ? '' : '线上和页面这份一样（' + (d.built || '') + '），已经是最新的了');
+          }
+          return finish(silent ? '' : '线上还是 ' + (d.built || '旧的') + '，比页面这份旧，已保留页面数据');
         }
         applyData(d, silent);
         setSyncState('', '');
