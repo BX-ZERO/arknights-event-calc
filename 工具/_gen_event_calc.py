@@ -1644,13 +1644,7 @@ renderBonus();
 renderShop();
 recalc();
 setInterval(renderNotice, 60000);   // 每分钟刷新剩余理智与倒计时
-// 数据老了先挂个常驻提示，等静默同步成功会自动盖掉
-(function(){
-  var b = parseDT(DATA.built);
-  if (b && (Date.now() - b) / 3600000 >= 20){
-    setSyncState('warn', '数据是 ' + String(DATA.built).slice(5, 10) + ' 的，点右边同步');
-  }
-})();
+// 黄点只表示「同步真的失败了」。数据新旧由顶部提示负责，这里不再挂黄点。
 // 打开后静默同步一次：本地服务或线上仓库有新数据就换上，失败就沿用内嵌这份
 setTimeout(function(){
   var dirty = items.some(function(it){
