@@ -156,6 +156,7 @@
   .modal.on{display:block}
   .mmask{position:absolute;inset:0;background:rgba(12,15,20,.55);backdrop-filter:blur(2px)}
   .mbox{position:relative;max-width:480px;margin:12vh auto 0;background:var(--card);
+      display:flex;flex-direction:column;min-height:460px;
         border:1px solid var(--line2);border-radius:6px;padding:22px 24px 18px;
         box-shadow:0 18px 50px rgba(0,0,0,.28)}
   .mtt{font-size:16.5px;font-weight:600;margin-bottom:12px;padding-left:11px;position:relative}
@@ -185,7 +186,8 @@
     padding-top:9px;margin-top:11px}
   .mnote a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
   .mnote a:hover{opacity:.8}
-  .mact{display:flex;justify-content:flex-end;gap:9px;margin-top:16px;padding-top:14px;
+  .mbody{flex:1 1 auto}
+  .mact{margin-top:auto;display:flex;justify-content:flex-end;gap:9px;margin-top:16px;padding-top:14px;
         border-top:1px solid var(--line)}
   .meta{color:var(--muted);font-size:12.5px}
   .meta b{color:var(--text);font-weight:600}
@@ -1481,7 +1483,6 @@ function staleKind(){
   return null;
 }
 function openModal(){
-  closeNoticeDetail();                 // 两个弹窗不叠在一起
   var m = document.getElementById('modal');
   if (m) m.classList.add('on');
 }
@@ -1517,7 +1518,11 @@ function showSyncModal(forceType, forceName){
     if (line1) line1.innerHTML = '关卡「<b>' + info.name + '</b>」现已开启，开放时间 <b>' +
       (hit ? hit.start : '—') + '</b>。';
   }
-  if (line1) line1.classList.add('flashline');
+  if (line1){ line1.style.display = ''; line1.classList.add('flashline'); }
+  var _sb = document.getElementById('modalSteps');
+  var _gb = document.getElementById('modalGeneric');
+  if (_sb) _sb.style.display = '';
+  if (_gb) _gb.style.display = 'none';
   // 取列表里那条通知的真实 id（可能是 act: / first: / phase: 三种之一）
   var _k = (info.type === 'phase') ? 'phase' : 'act';
   var _c = collectNotices().filter(function(n){ return n.kind === _k; })[0];
@@ -1532,8 +1537,11 @@ function refreshModalNext(){
   if (!btn) return;
   var read = _readIds();
   var un = collectNotices().filter(function(n){ return read.indexOf(n.id) < 0; });
+  // 当前这条正在弹，剩下的是它之外还没读的
+  var cur = window._curNoticeId || '';
+  var left = un.filter(function(n){ return n.id !== cur; }).length;
   btn.style.display = un.length ? '' : 'none';
-  btn.textContent = un.length > 1 ? ('下一条（还有 ' + un.length + ' 条）') : '下一条';
+  btn.textContent = left > 0 ? ('下一条（还有 ' + left + ' 条）') : '下一条';
 }
 setTimeout(function(){
   if (typeof collectNotices !== 'function') return;
@@ -1600,8 +1608,10 @@ function collectNotices(){
   var sw = null;
   try{ sw = JSON.parse(localStorage.getItem('ark_notice_act') || 'null'); }catch(e){}
   var title0 = (DATA.activity && DATA.activity.title) || '';
+  // 先判断这次是不是「活动开了但数据还旧」，是的话只留那一条，不重复报「活动已开启」
+  var info0 = (typeof staleKind === 'function') ? staleKind() : null;
   // 这个活动是第一次见：记一条，之后不再重复
-  if (title0){
+  if (title0 && !(info0 && info0.type === 'newact')){
     var seen = [];
     try{ seen = JSON.parse(localStorage.getItem('ark_seen_act') || '[]'); }catch(e){}
     if (seen.indexOf(title0) < 0){
@@ -1644,6 +1654,9 @@ function collectNotices(){
   }
   var seen = {}, uniq = [];
   out.forEach(function(n){ if (!seen[n.id]){ seen[n.id] = 1; uniq.push(n); } });
+  // 同一个活动里，「act:」与「first:」讲的是同一件事，只留 act:
+  var hasAct = uniq.some(function(n){ return /^act:/.test(String(n.id)); });
+  if (hasAct) uniq = uniq.filter(function(n){ return !/^first:/.test(String(n.id)); });
   return uniq;
 }
 function renderNotices(list){
@@ -1714,25 +1727,23 @@ function markReadOne(id){
   renderNotices(collectNotices());
 }
 function openNoticeDetail(n){
-  closeModal();                        // 两个弹窗不叠在一起
   markReadOne(n.id);
   window._curNoticeId = n.id;
-  var m = document.getElementById('nmodal');
-  if (!m) return;
-  var tt = document.getElementById('ntt');
-  var bd = document.getElementById('nbd');
+  var tt = document.getElementById('modalTitle');
+  var l1 = document.getElementById('modalLine1');
+  var sb = document.getElementById('modalSteps');
+  var gb = document.getElementById('modalGeneric');
   if (tt) tt.innerHTML = '<span class="nk" style="display:inline-block;margin-right:8px">' +
     n.k + '</span>' + n.t;
-  if (bd) bd.innerHTML = '<p>' + n.b + '</p>';
-  var sync = document.getElementById('nSync');
-  if (sync) sync.style.display = (n.kind === 'welcome') ? 'none' : '';
-  m.classList.add('on');
-  _ls(NOTICE_WELCOME, '1');
+  if (l1){ l1.style.display = 'none'; l1.innerHTML = ''; l1.classList.remove('flashline'); }
+  if (sb) sb.style.display = 'none';
+  if (gb){ gb.style.display = ''; gb.innerHTML = '<p>' + n.b + '</p>'; }
   closeNotice();
+  openModal();
+  refreshModalNext();
 }
 function closeNoticeDetail(){
-  var m = document.getElementById('nmodal');
-  if (m) m.classList.remove('on');
+  closeModal();
 }
 function initNotify(){
   purgeOldNotes();
@@ -1765,13 +1776,6 @@ function initNotify(){
     if (b) b.click();
   });
   renderNotices(collectNotices());
-  // 第一次来：直接把欢迎通知弹出来
-  if (!_ls(NOTICE_WELCOME)){
-    setTimeout(function(){
-      var w = collectNotices().filter(function(x){ return x.id === 'welcome'; })[0];
-      if (w) openNoticeDetail(w);
-    }, 900);
-  }
 }
 
 function bindModal(){
@@ -1819,6 +1823,7 @@ document.addEventListener('keydown', function(e){
     <div class="mtt" id="modalTitle">SideStory「时间啊，向前！」<b>新关卡开启</b></div>
     <div class="mbody">
       <p id="modalLine1">关卡「<b id="modalPhase">—</b>」现已开启，开放时间 <b id="modalWhen">—</b>。</p>
+      <div id="modalSteps">
       <p class="mstep"><span class="mn">1</span>请点击右上角<b>「同步最新数据」</b>按钮，更新数据。</p>
       <p class="mstep"><span class="mn">2</span>若更新数据失败，请点击<b>「导入本地文件」</b>手动更新：<span id="modalDl">去项目仓库下载 <code>活动数据.json</code>，再选中这个文件。</span></p>
       <p class="mignore">如果页面上的数据已经是最新的，忽略这条提醒。</p>
@@ -1827,6 +1832,8 @@ document.addEventListener('keydown', function(e){
         <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">下载 Python</a> ·
         <a href="https://www.runoob.com/python3/python3-install.html" target="_blank" rel="noopener">中文安装教程</a>
       </p>
+      </div>
+      <div id="modalGeneric" style="display:none"></div>
     </div>
     <div class="mact">
       <button id="modalNext" style="display:none">下一条</button>
