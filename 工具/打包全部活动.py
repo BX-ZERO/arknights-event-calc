@@ -68,6 +68,24 @@ def _fmt_span(sec):
     return '%d 小时 %d 分' % (sec // 3600, (sec % 3600) // 60)
 
 
+SKIP_FILE = os.path.join(OUT_DIR, '_跳过.json')
+
+
+def load_skip():
+    """读「抓不了的」名单：没有标准商店的活动，试过一次就不再试。"""
+    try:
+        with io.open(SKIP_FILE, encoding='utf-8') as f:
+            return set(json.load(f))
+    except Exception:
+        return set()
+
+
+def save_skip(names):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    with io.open(SKIP_FILE, 'w', encoding='utf-8') as f:
+        json.dump(sorted(names), f, ensure_ascii=False, indent=1)
+
+
 def safe_name(s):
     return _BAD.sub('_', str(s)).strip().rstrip('.') or '未命名'
 
@@ -85,14 +103,22 @@ def main():
         os.makedirs(OUT_DIR)
         print('已创建文件夹：' + OUT_DIR)
 
+    skip = load_skip()
     todo = []
+    skipped = 0
     for a in acts:
+        if a['short'] in skip:
+            skipped += 1
+            continue
         p = os.path.join(OUT_DIR, safe_name(a['short']) + '.json')
         if not os.path.exists(p):
             todo.append(a)
 
     print('活动总数 %d，已有 %d，本次要抓 %d 个。'
-          % (len(acts), len(acts) - len(todo), len(todo)))
+          % (len(acts), len(acts) - len(todo) - skipped, len(todo)))
+    if skipped:
+        print('另有 %d 个活动没有标准商店，之前已标记跳过（想重试就删掉「活动存档\\_跳过.json」）。'
+              % skipped)
     if not todo:
         print('已经全部抓过了，不用再跑。')
         print('文件夹：' + OUT_DIR)
@@ -135,8 +161,10 @@ def main():
             print('\n手动中断。已抓到的都存好了，下次接着来。')
             return 0
         except SystemExit:
-            print('  跳过：这个活动没有标准商店，算不了。')
+            print('  跳过：这个活动没有标准商店，算不了。以后不再尝试。')
             fail.append(name)
+            skip.add(name)
+            save_skip(skip)
             continue
         except Exception as e:
             print('  失败：%s' % e)
@@ -153,6 +181,8 @@ def main():
         print('  已存 %s（%.0f KB）' % (os.path.basename(p), os.path.getsize(p) / 1024.0))
 
     print()
+    if fail:
+        print('  这些没有标准商店，已记进跳过名单，下次不会再来试。')
     print('完成：本次抓到 %d 个，跳过 %d 个，用时 %.1f 分钟。'
           % (ok, len(fail), (time.time() - t0) / 60))
     if fail:
