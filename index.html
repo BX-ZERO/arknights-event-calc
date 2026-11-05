@@ -980,16 +980,23 @@ function renderShop(){
       recalc();
     }
     if (d){
-      d.addEventListener('input', function(e){ clampDone(e.target); });
-      d.addEventListener('blur', function(e){ clampDone(e.target); });
+      d.addEventListener('input', function(e){ clampDone(e.target); syncWant(); });
+      d.addEventListener('blur', function(e){ clampDone(e.target); syncWant(); });
+    }
+    // 填了「已换」就说明确实要换，顺手把左边的「要换」勾上
+    function syncWant(){
+      if ((it.done > 0 || it.doneStep > 0) && !it.want){
+        it.want = true;
+        if (w) w.checked = true;
+      }
     }
     var d1 = tr.querySelector('[data-role=done1]');
     if (d1) d1.addEventListener('change', function(e){
-      it.done = e.target.checked ? 1 : 0; recalc();
+      it.done = e.target.checked ? 1 : 0; syncWant(); recalc();
     });
     var ds = tr.querySelector('[data-role=doneSel]');
     if (ds) ds.addEventListener('change', function(e){
-      it.done = Math.max(0, num(e.target.value)); recalc();
+      it.done = Math.max(0, num(e.target.value)); syncWant(); recalc();
     });
     var st = tr.querySelector('[data-role=step]');
     var dst = tr.querySelector('[data-role=doneStep]');
@@ -1012,6 +1019,12 @@ function renderShop(){
     });
     if (dst) dst.addEventListener('change', function(e){
       it.doneStep = +e.target.value;
+      // 已换档数不能超过要换档数，超了就把它顶上去
+      if (it.doneStep > it.step){
+        it.step = it.doneStep;
+        if (st) st.value = it.step;
+      }
+      syncWant();
       recalc();
     });
   });
