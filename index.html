@@ -337,7 +337,17 @@
     .group{overflow:hidden;min-width:0}
     .group .body{overflow:hidden;min-width:0}
     .group.collapsed .body{display:none}
-    .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;max-width:100%}
+    .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;max-width:100%;
+      scrollbar-width:thin}
+    /* 窄屏把表格压紧一点，滑动距离短些：820 左右，一屏半能滑完 */
+    .tscroll table{min-width:820px!important}
+    .tscroll th:nth-child(2),.tscroll td:nth-child(2){min-width:130px!important}
+    .tscroll th:nth-child(3),.tscroll td:nth-child(3){width:54px!important}
+    .tscroll th:nth-child(4),.tscroll td:nth-child(4){width:96px!important}
+    .tscroll th:nth-child(5),.tscroll td:nth-child(5){width:124px!important}
+    .tscroll th:nth-child(6),.tscroll td:nth-child(6){width:54px!important}
+    .tscroll th:nth-child(7),.tscroll td:nth-child(7){width:58px!important}
+    .tscroll input.mini,.tscroll select.mini-sel{width:52px!important}
     /* 表格给足最小宽度，让它横向滚动，别把名字挤成一字一行 */
     /* 提示框在窄屏一律换行，倒计时也允许折行 */
     #notice,#notice *{white-space:normal!important;word-break:break-word!important;
@@ -876,12 +886,11 @@ function renderNotice(){
     return;
   }
 
-  var built = parseDT(DATA.built);
-  if (built){
-    var ageH = (now - built) / 3600000;
-    if (ageH >= 20)
-      html += '<span class="sub">数据抓取自 ' + DATA.built + '，已经不是今天的了，建议点击「同步最新数据」按钮。</span>';
-  }
+  // 只在「真落后」时提醒：有阶段已经开放，但数据里还没有它的关卡。
+  // 单纯数据放了一天不算落后——活动数据本来就不天天变，天天喊反而让人以为永远不是最新的。
+  var lag = (typeof staleKind === 'function') ? staleKind() : null;
+  if (lag)
+    html += '<span class="sub">数据抓取自 ' + (DATA.built || '较早') + '，新开放的阶段还没进来，请点击「同步最新数据」按钮。</span>';
   box.className = 'notice show' + (warn ? ' notice-warn' : '');
   var ico = isCd
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="13.4" r="7.2"/><path d="M12 9.9v3.7l2.4 1.5"/><path d="M5.2 4.6 7 2.9M18.8 4.6 17 2.9"/></svg>'
@@ -1493,9 +1502,11 @@ function reloadData(silent){
       return fetchRemote().then(function(){
         var d = window.__ACTIVITY_DATA__;
         if (!d || !d.shop || !d.activity) throw new Error('bad');
-        if (silent && d.built && d.built === DATA.built){
+        // 线上那份要是比手里这份还旧，就别拿它覆盖（比如刚在本地重新抓过、还没上传）
+        var dB = parseDT(d.built), cB = parseDT(DATA.built);
+        if (dB && cB && dB <= cB){
           setSyncState('', '');
-          return finish('');
+          return finish(silent ? '' : '线上数据还是 ' + (d.built || '旧的') + '，比本地这份旧，已保留本地数据');
         }
         applyData(d, silent);
         setSyncState('', '');
