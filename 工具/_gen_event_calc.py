@@ -268,7 +268,12 @@ HTML = r'''<!DOCTYPE html>
   .stat .k{font-size:11px;color:var(--muted);letter-spacing:.06em}
   .stat .v{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px;letter-spacing:-.01em}
   .stat.need .v{color:var(--warn)}
-  .stat.left .v{color:var(--accent)}
+  .stat.left{background:#fff7f7;border:1px solid #f0c9c9;box-shadow:inset 0 0 0 1px #fbe4e4}
+  .stat .calc{font-size:12.5px;color:#9aa1ab;margin-top:3px;letter-spacing:.01em}
+  .stat .calc b{font-weight:600;color:#6d747e}
+  .stat.left .v{color:var(--accent);font-size:26px;font-weight:800}
+  .stat.left .k{color:#a61b23;font-weight:600}
+  .stat.left.uncertain .k::after{content:" · 估算";font-size:10.5px;font-weight:400;opacity:.75}
   .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
   .tabs button.on{background:#eef3ff;border-color:#b9cdfb;color:#1d4ed8}
   .group{margin-bottom:16px;background:var(--card);border:1px solid var(--line);border-radius:4px;overflow:hidden}
@@ -331,7 +336,16 @@ HTML = r'''<!DOCTYPE html>
   .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--line);border-radius:4px;font-size:12px;background:var(--card);color:var(--muted);cursor:pointer;user-select:none}
   .chip.on{border-color:#9dc2ee;background:#eff6ff;color:var(--text)}
   .chip b{font-weight:600;color:var(--text)}
-  .mini-sel{font-size:12.5px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);min-width:58px;text-align:center}
+  .tscroll th,.tscroll td{white-space:nowrap}
+  .tscroll td:nth-child(2) .name{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .tscroll td:nth-child(2) .name img{flex:none}
+  .tscroll td:nth-child(2),.tscroll th:nth-child(2){min-width:190px}
+  .cbox{display:flex;align-items:center;gap:4px;white-space:nowrap;
+    justify-content:center;position:relative;min-height:26px}
+  .cbox input.mini{width:58px;min-width:0;text-align:center}
+  .cbox select.mini-sel{width:58px}
+
+    .mini-sel{font-size:12.5px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);min-width:58px;text-align:center}
   .tierrow td{background:#fafbfd}
   .q-彩 .dot,.dot.q-彩{background:var(--rainbow)}
   .dot.q-金{background:var(--gold)} .dot.q-紫{background:var(--purple)}
@@ -380,12 +394,39 @@ HTML = r'''<!DOCTYPE html>
     .group .body{overflow:hidden;min-width:0}
     .group.collapsed .body{display:none}
     .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;max-width:100%}
-    .tscroll table{min-width:100%}
+    /* 表格给足最小宽度，让它横向滚动，别把名字挤成一字一行 */
+    /* 提示框在窄屏一律换行，倒计时也允许折行 */
+    #notice,#notice *{white-space:normal!important;word-break:break-word!important;
+      overflow-wrap:anywhere!important}
+    #notice{max-width:100%}
+    #notice{overflow:hidden;max-width:100%}
+    #notice .nt{display:block;flex:1 1 0;min-width:0;width:0;overflow:hidden}
+    html,body{overflow-x:hidden}
+    .wrap{overflow-x:hidden}
+    .notice .nt,.notice .nt .sub,.hint,.meta,.lead{
+      white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+    .notice .nt{min-width:0;flex:1 1 auto}
+    .notice .nt .cd{white-space:normal!important}
+    .bhead{flex-wrap:wrap;gap:6px}
+    .ghead{row-gap:6px}
+    .mbox{max-width:calc(100vw - 28px);min-height:0;margin:7vh auto 0;padding:20px 18px}
+    .mtt{font-size:16px}
+    .mbody{font-size:13px}
+    .mact{flex-wrap:wrap;gap:8px}
+    .mact button{flex:1 1 auto;min-width:0}
+    .tscroll table{min-width:620px;table-layout:auto}
+    .tscroll td:nth-child(2),.tscroll th:nth-child(2){min-width:150px}
+    .tscroll td:nth-child(2){white-space:nowrap}
+    .tscroll td:nth-child(2) .tag{white-space:nowrap}
+    /* 右上角两个悬浮按钮在小屏会盖住分组标题，挪到右下 */
+    #warnIcon,.themebtn,.theme-btn,#themeBtn{top:auto!important;bottom:64px!important}
     .tscroll th:nth-child(1),.tscroll td:nth-child(1){width:42px!important;padding-left:4px;padding-right:4px}
     .tscroll th:nth-child(3),.tscroll td:nth-child(3){width:56px!important;padding-left:4px;padding-right:4px}
-    .tscroll th:nth-child(4),.tscroll td:nth-child(4){width:74px!important;padding-left:4px;padding-right:4px}
-    .tscroll th:nth-child(5),.tscroll td:nth-child(5){width:74px!important;padding-left:4px;padding-right:4px}
-    .tscroll th:nth-child(6),.tscroll td:nth-child(6){width:56px!important;padding-left:4px;padding-right:4px}
+    .tscroll table{min-width:1140px}
+  .tscroll th:nth-child(4),.tscroll td:nth-child(4){width:112px!important;padding-left:4px;padding-right:4px}
+    .tscroll th:nth-child(5),.tscroll td:nth-child(5){width:164px!important;padding-left:4px;padding-right:4px}
+    .tscroll th:nth-child(6),.tscroll td:nth-child(6){width:60px!important;padding-left:4px;padding-right:4px}
+    .tscroll th:nth-child(7),.tscroll td:nth-child(7){width:56px!important;padding-left:4px;padding-right:4px}
     .tscroll td{padding-top:8px;padding-bottom:8px;font-size:12.5px}
     .tscroll input[type=number],.tscroll select{width:100%;min-width:40px;padding:4px 6px;font-size:12.5px}
     .tscroll .ico{width:26px;height:26px;margin-right:5px}
@@ -437,6 +478,16 @@ HTML = r'''<!DOCTYPE html>
   html[data-theme="dark"] .banner img{opacity:.94}
   html[data-theme="dark"] .foot .item b{color:var(--text)}
   }
+
+/* 数量与已换两列的控件布局：桌面和窄屏共用 */
+.cbox{display:flex;align-items:center;gap:4px;white-space:nowrap;
+  justify-content:center;position:relative;min-height:26px}
+.cbox input.mini{width:58px;min-width:0;text-align:center}
+.cbox select.mini-sel{width:58px}
+.tscroll table{min-width:1140px}
+.tscroll th:nth-child(4),.tscroll td:nth-child(4){width:104px;padding-left:4px;padding-right:4px}
+.tscroll th:nth-child(5),.tscroll td:nth-child(5){width:146px;padding-left:4px;padding-right:4px}
+.maxb{position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;margin:0;font:9.5px/1 inherit;color:#c9ced6;cursor:pointer;letter-spacing:.02em}
 </style>
 <script>
 (function(){
@@ -517,7 +568,7 @@ HTML = r'''<!DOCTYPE html>
     <div class="stats">
       <div class="stat"><div class="k">勾选商品总价 <span class="en">TOTAL</span></div><div class="v" id="sTotal">0</div></div>
       <div class="stat"><div class="k">其中已换 <span class="en">OWNED</span></div><div class="v" id="sDone">0</div></div>
-      <div class="stat need"><div class="k">还差代币 <span class="en">MISSING</span></div><div class="v" id="sLeft">0</div></div>
+      <div class="stat need"><div class="k">还差代币 <span class="en">MISSING</span></div><div class="v" id="sLeft">0</div><div class="calc" id="sLeftCalc"></div></div>
       <div class="stat left"><div class="k">还需刷 <span class="en">RUNS</span></div><div class="v" id="sRuns">0</div></div>
     </div>
     <div class="hint" id="hint"></div>
@@ -537,8 +588,8 @@ HTML = r'''<!DOCTYPE html>
     <b style="color:var(--text)">说明</b><br>
     代币与理智 1:1，普通关每 1 理智掉 1 个「__TOKEN__」。首通奖励不计入刷取折算。<br>
     勾选「要换」＝这件算进计划；「已换」填你已经买掉的数量，会从还差里扣除。<br>
-    数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以在右上角手动同步。换活动时用「导入本地文件」。<br>
-     非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.0.1</span>
+    数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以手动点击「同步最新数据」。换活动时用「导入本地文件」。<br>
+     非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.0.2</span>
   </div>
 </div>
 
@@ -657,9 +708,24 @@ function loadState(){
       for (var i = 0; i < p.options.length; i++) if (p.options[i].value === s.stage) hit = true;
       if (hit) p.value = s.stage;
     }
-    (s.bonus || []).forEach(function(v, i){ if (bonusState[i]) bonusState[i].on = !!v; });
-    (s.items || []).forEach(function(v, i){
-      var it = items[i]; if (!it) return;
+    // 按名字取，活动数据更新导致条目增减也不会串位
+    var bMap = {};
+    (s.bonus || []).forEach(function(v){
+      if (Array.isArray(v)) bMap[v[0]] = v[1];
+      else if (typeof v === 'object' && v) bMap[v.n] = v.on;
+    });
+    bonusState.forEach(function(b){
+      var key = b.nm || b.name || '';
+      if (bMap[key] !== undefined) b.on = !!bMap[key];
+    });
+    var iMap = {};
+    (s.items || []).forEach(function(v){
+      if (Array.isArray(v)) iMap[v[0]] = v[1];
+      else if (typeof v === 'object' && v) iMap[v.n] = v;
+    });
+    items.forEach(function(it){
+      var v = iMap[it.name];
+      if (!v) return;
       if (v.w !== undefined) it.want = !!v.w;
       if (v.c !== undefined) it.count = v.c;
       if (v.d !== undefined) it.done = v.d;
@@ -678,9 +744,9 @@ function saveState(){
       localStorage.setItem(stateKey(), JSON.stringify({
         have: document.getElementById('haveToken').value,
         stage: p ? p.value : '',
-        bonus: bonusState.map(function(b){ return b.on ? 1 : 0; }),
+        bonus: bonusState.map(function(b){ return [b.nm || b.name || '', b.on ? 1 : 0]; }),
         items: items.map(function(it){
-          return {w: it.want ? 1 : 0, c: it.count, d: it.done, s: it.step, ds: it.doneStep};
+          return [it.name, {w: it.want ? 1 : 0, c: it.count, d: it.done, s: it.step, ds: it.doneStep}];
         })
       }));
     }catch(e){}
@@ -848,7 +914,7 @@ function renderNotice(){
     warn = left < 3600000;
     html = '距离「<b>' + np.name + '</b>」开放还有 ' +
       '<span class="cd">' + fmtCd(left) + '</span>' +
-      '<span class="sub">开放时间 ' + np.start + '。届时请点右上角「同步最新数据」，新关卡的掉落数据才会进来。</span>';
+      '<span class="sub">开放时间 ' + np.start + '。届时请点击「同步最新数据」按钮，新关卡的掉落数据才会进来。</span>';
   } else if (en && now > en){
     warn = true;
     if (se && now <= se){
@@ -870,7 +936,7 @@ function renderNotice(){
   if (built){
     var ageH = (now - built) / 3600000;
     if (ageH >= 20)
-      html += '<span class="sub">数据抓取自 ' + DATA.built + '，已经不是今天的了，建议点右上角「同步最新数据」。</span>';
+      html += '<span class="sub">数据抓取自 ' + DATA.built + '，已经不是今天的了，建议点击「同步最新数据」按钮。</span>';
   }
   box.className = 'notice show' + (warn ? ' notice-warn' : '');
   var ico = isCd
@@ -902,8 +968,9 @@ function renderShop(){
       '<span class="n">' + list.length + ' 项</span><span class="sum" data-sum="' + gi + '"></span></div>' +
       '<div class="body"><div class="tscroll"><table><thead><tr>' +
       '<th class="c" style="width:58px">要换</th><th>商品名称</th><th class="c" style="width:74px">单价</th>' +
-      '<th class="c" style="width:96px">数量</th>' +
+      '<th class="c" style="width:120px">数量</th>' +
       '<th class="c" style="width:96px">已换</th>' +
+      '<th class="c" style="width:76px">剩余</th>' +
       '<th class="c" style="width:76px">小计</th></tr></thead><tbody>';
     list.forEach(function(it){
       var q = it.quality ? ' dot q-' + it.quality : ' dot';
@@ -929,30 +996,36 @@ function renderShop(){
           '<td class="num">起 ' + it.steps[0].price + '</td>' +
           '<td class="num" style="text-align:center"><select class="mini-sel" data-role="step">' + opts + '</select></td>' +
           '<td class="num" style="text-align:center"><select class="mini-sel" data-role="doneStep">' + dop + '</select></td>' +
+          '<td class="num" data-role="remain">' + (it.step - it.doneStep) + ' 档</td>' +
           '<td class="num" data-role="sub">—</td></tr>';
         return;
       }
       var doneCell;
       if (it.qty === 1){
-        doneCell = '<td class="num" style="text-align:center"><input type="checkbox" data-role="done1"' + (it.done >= 1 ? ' checked' : '') + '></td>';
+        doneCell = '<td class="num"><div class="cbox"><input type="checkbox" data-role="done1"' + (it.done >= 1 ? ' checked' : '') + '>' + '</div></td>';
       } else if (it.qty !== Infinity && it.qty < 10){
         var dopts = '';
         for (var q = 0; q <= it.qty; q++){
           dopts += '<option value="' + q + '"' + (q === it.done ? ' selected' : '') + '>' + q + '</option>';
         }
-        doneCell = '<td class="num" style="text-align:center"><select class="mini-sel" data-role="doneSel">' + dopts + '</select></td>';
+        doneCell = '<td class="num"><div class="cbox"><select class="mini-sel" data-role="doneSel">' + dopts + '</select>' + '</div></td>';
       } else {
-        doneCell = '<td class="num" style="text-align:center"><input class="mini" data-role="done" type="number" min="0" value="' + it.done + '"></td>';
+        doneCell = '<td class="num"><div class="cbox"><input class="mini" data-role="done" type="number" step="1" min="-1"' +
+          ' max="' + it.count + '" value="' + it.done + '">' +
+          '<button type="button" class="maxb" data-role="max" title="填到上限 ' + it.qty + '"' +
+          (it.qty !== Infinity && it.qty > 5 ? '' : ' style="visibility:hidden"') + '>max</button>' +
+          '</div></td>';
       }
       html += '<tr data-id="' + it.id + '">' +
         '<td><input type="checkbox" data-role="want"' + (it.want ? ' checked' : '') + '></td>' +
         '<td><span class="name">' + mark + it.name +
           (it.furniture ? '<span class="tag">活动家具</span>' : '') + '</span></td>' +
         '<td class="num">' + it.price + '</td>' +
-        '<td class="num"><input class="mini" data-role="count" type="number" step="1" min="1"' +
+        '<td class="num"><div class="cbox"><input class="mini" data-role="count" type="number" step="1" min="-1"' +
           (it.qty !== Infinity ? ' max="' + it.qty + '"' : '') +
-          ' value="' + it.count + '"></td>' +
+          ' value="' + it.count + '"></div></td>' +
         doneCell +
+        '<td class="num" data-role="remain">' + Math.max(0, it.count - it.done) + '</td>' +
         '<td class="num" data-role="sub">0</td></tr>';
     });
     html += '</tbody></table></div></div></div>';
@@ -991,19 +1064,71 @@ function renderShop(){
     var c = tr.querySelector('[data-role=count]');
     function clampCount(el){
       var v = Math.floor(num(el.value));
-      if (!isFinite(v) || v < 1) v = 1;
+      // 已经是 0 还往下减（变成负数）：跳到上限
+      if (isFinite(v) && v < 0 && it.qty !== Infinity && it.qty > 0){
+        it.count = it.qty;
+        el.value = it.qty;
+        recalc();
+        return;
+      }
+      if (!isFinite(v) || v < 0) v = 0;
       if (it.qty !== Infinity && v > it.qty) v = it.qty;
       it.count = v;
       if (String(el.value) !== String(v)) el.value = v;
       recalc();
     }
+    function fillMax(){
+      if (it.qty === Infinity || it.qty < 1) return;
+      it.want = true;
+      if (w) w.checked = true;
+      it.count = it.qty;
+      if (c) c.value = it.qty;
+      if (it.tier){
+        if (!it.step) it.step = 1;
+        it.doneStep = it.step;
+        var st1 = tr.querySelector('[data-role=step]');
+        var dst1 = tr.querySelector('[data-role=doneStep]');
+        if (st1) st1.value = it.step;
+        if (dst1) dst1.value = it.doneStep;
+      } else {
+        it.done = it.count;
+        var d1x = tr.querySelector('[data-role=done1]');
+        var dsx = tr.querySelector('[data-role=doneSel]');
+        var dnx = tr.querySelector('[data-role=done]');
+        if (d1x) d1x.checked = it.done >= 1;
+        if (dsx) dsx.value = it.done;
+        if (dnx) dnx.value = it.done;
+      }
+      recalc();
+      saveState();
+    }
+    var mb = tr.querySelector('[data-role=max]');
+    if (mb) mb.addEventListener('click', function(e){ e.stopPropagation(); fillMax(); });
+
     if (c){
       c.addEventListener('input', function(e){ clampCount(e.target); });
       c.addEventListener('blur', function(e){ clampCount(e.target); });
+      c.addEventListener('keydown', function(e){
+        if (it.qty === Infinity || it.qty < 1) return;
+        var v = Math.floor(num(c.value));
+        if (e.key === 'ArrowDown' && v <= 0){
+          e.preventDefault(); it.count = it.qty; c.value = it.qty; recalc();
+        } else if (e.key === 'ArrowUp' && v >= it.qty){
+          e.preventDefault(); it.count = 0; c.value = 0; recalc();
+        }
+      });
     }
+
     var d = tr.querySelector('[data-role=done]');
     function clampDone(el){
       var v = Math.floor(num(el.value));
+      // 已经是 0 还往下减：跳到当前数量
+      if (isFinite(v) && v < 0){
+        it.done = it.count;
+        el.value = it.count;
+        recalc();
+        return;
+      }
       if (!isFinite(v) || v < 0) v = 0;
       if (it.qty !== Infinity && v > it.qty) v = it.qty;
       it.done = v;
@@ -1011,16 +1136,23 @@ function renderShop(){
       recalc();
     }
     if (d){
-      d.addEventListener('input', function(e){ clampDone(e.target); });
-      d.addEventListener('blur', function(e){ clampDone(e.target); });
+      d.addEventListener('input', function(e){ clampDone(e.target); syncWant(); });
+      d.addEventListener('blur', function(e){ clampDone(e.target); syncWant(); });
+    }
+    // 填了「已换」就说明确实要换，顺手把左边的「要换」勾上
+    function syncWant(){
+      if ((it.count > 0 || it.done > 0 || it.doneStep > 0) && !it.want){
+        it.want = true;
+        if (w) w.checked = true;
+      }
     }
     var d1 = tr.querySelector('[data-role=done1]');
     if (d1) d1.addEventListener('change', function(e){
-      it.done = e.target.checked ? 1 : 0; recalc();
+      it.done = e.target.checked ? 1 : 0; syncWant(); recalc();
     });
     var ds = tr.querySelector('[data-role=doneSel]');
     if (ds) ds.addEventListener('change', function(e){
-      it.done = Math.max(0, num(e.target.value)); recalc();
+      it.done = Math.max(0, num(e.target.value)); syncWant(); recalc();
     });
     var st = tr.querySelector('[data-role=step]');
     var dst = tr.querySelector('[data-role=doneStep]');
@@ -1043,6 +1175,12 @@ function renderShop(){
     });
     if (dst) dst.addEventListener('change', function(e){
       it.doneStep = +e.target.value;
+      // 已换档数不能超过要换档数，超了就把它顶上去
+      if (it.doneStep > it.step){
+        it.step = it.doneStep;
+        if (st) st.value = it.step;
+      }
+      syncWant();
       recalc();
     });
   });
@@ -1144,7 +1282,8 @@ function renderBonus(){
   box.querySelectorAll('[data-ball]').forEach(function(btn){
     btn.addEventListener('click', function(){
       var k = btn.getAttribute('data-ball');
-      bonusState.forEach(function(b){ if (b.kind === k && b.token !== null) b.on = true; });
+      // 没开放的关卡拿不到，全选时跳过
+      bonusState.forEach(function(b){ if (b.kind === k && b.token !== null && b.open !== false) b.on = true; });
       renderBonus(); recalc();
     });
   });
@@ -1160,6 +1299,12 @@ function renderBonus(){
 function bonusTotal(){
   return bonusState.reduce(function(s, b){
     return s + ((b.on && b.token !== null) ? b.token : 0);
+  }, 0);
+}
+// 还没拿到的一次性代币：全部有数的减去已经勾上的
+function bonusUnclaimed(){
+  return bonusState.reduce(function(s, b){
+    return s + ((!b.on && b.token !== null) ? b.token : 0);
   }, 0);
 }
 function updateBonusSum(){
@@ -1216,31 +1361,48 @@ function recalc(){
         var cb = tr.querySelector('[data-role=want]');
         if (cb) cb.checked = it.step > 0;
       }
+      var rc = tr.querySelector('[data-role=remain]');
+      if (rc) rc.textContent = it.tier
+        ? Math.max(0, it.step - it.doneStep) + ' 档'
+        : String(Math.max(0, it.count - it.done));
     }
     gsum[it.group] = (gsum[it.group] || 0) + (it.tier ? ((it.step > 0) ? subDone : 0) : (it.want ? sub + subDone : 0));
   });
 
   var have = num(document.getElementById('haveToken').value);
   var mile = bonusTotal();
-  var left = Math.max(0, total - done - have - mile);
+  var unclaimed = bonusUnclaimed();          // 还没拿到的一次性代币
+  // 有关卡还没开放、或首通代币还不知道，结果就只能估
+  var unsure = bonusState.some(function(b){ return b.open === false || b.token === null; });
+  var left = Math.max(0, total - done - have);   // 一次性来源不参与计算
+  // 还得自己刷的部分：还差里扣掉将来能白拿的那一份
+  var needFarm = Math.max(0, left - unclaimed);
   var best = window.BEST || {sanity: 0, token: 0};
-  var runs = best.token ? left / best.token : 0;
+  var runs = best.token ? needFarm / best.token : 0;
 
   document.getElementById('sTotal').textContent = fmt(total);
   document.getElementById('sDone').textContent = fmt(done);
-  document.getElementById('sLeft').textContent = fmt(Math.max(0, total - done - have - mile));
+  document.getElementById('sLeft').textContent = fmt(left);
+  var lc = document.getElementById('sLeftCalc');
+  if (lc){
+    lc.innerHTML = unclaimed > 0
+      ? '-' + (unsure ? '（约）' : '') + fmt(unclaimed) + ' = <b>' + fmt(needFarm) + '</b>'
+      : '';
+  }
+  var leftBox = document.querySelector('.stat.left');
+  if (leftBox) leftBox.classList.toggle('uncertain', unsure);
   document.getElementById('sRuns').innerHTML = Math.ceil(runs) + ' <i style="font-style:normal;font-size:13px;font-weight:500;color:var(--muted);margin-left:3px">把</i>';
   document.getElementById('bTotal').textContent = fmt(total);
   document.getElementById('bDone').textContent = fmt(done);
   document.getElementById('bLeft').textContent = fmt(left);
   document.getElementById('bRuns').textContent = Math.ceil(runs);
   document.getElementById('bSanity').textContent = Math.ceil(runs) * best.sanity;
-  bump(['sTotal','sDone','sLeft','sRuns'], [total, done, Math.max(0, total - done - have - mile), Math.ceil(runs)]);
+  bump(['sTotal','sDone','sLeft','sRuns'], [total, done, left, Math.ceil(runs)]);
 
   document.getElementById('hint').textContent =
-    '还差 ' + fmt(left) + ' 代币，按 ' + (best.code || '当前关卡') + ' 折算约 ' +
+    '还差 ' + fmt(left) + ' 代币，按 ' + (best.code || '当前关卡') + (unsure ? ' 估算约 ' : ' 折算约 ') +
     Math.ceil(runs) + ' 把 / ' + Math.ceil(runs) * best.sanity + ' 理智。' +
-    '（一次性来源已计入 ' + fmt(mile) + ' 代币，拿过就把对应项勾掉）';
+    '（一次性来源已计入 ' + fmt(unclaimed) + ' 代币，已获取就勾选）';
 
   updateBonusSum();
 
@@ -1289,7 +1451,8 @@ document.querySelectorAll('.tabs button').forEach(function(b){
 });
 
 document.getElementById('bAll').addEventListener('click', function(){
-  bonusState.forEach(function(b){ b.on = true; }); renderBonus(); recalc();
+  // 没开放的一律不勾，免得算出一个拿不到的进度
+  bonusState.forEach(function(b){ if (b.token !== null && b.open !== false) b.on = true; }); renderBonus(); recalc();
 });
 document.getElementById('bNone').addEventListener('click', function(){
   bonusState.forEach(function(b){ b.on = false; }); renderBonus(); recalc();
@@ -1675,7 +1838,7 @@ function collectNotices(){
       try{ localStorage.setItem('ark_seen_act', JSON.stringify(seen)); }catch(e){}
       pushNotice({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
         t: '活动已开启',
-        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点右上角「同步最新数据」再取一次。'});
+        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
     }
   }
   var info = (typeof staleKind === 'function') ? staleKind() : null;
@@ -1683,17 +1846,17 @@ function collectNotices(){
   if (info && info.type === 'newact'){
     pushNotice({id: 'act:' + title, act: title, kind: 'act', k: '活动',
       t: '新活动已开启',
-      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点右上角「同步最新数据」，最新的商店和关卡才会进来。'});
+      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点击「同步最新数据」按钮，最新的商店和关卡才会进来。'});
     out.push({id: 'act:' + title, kind: 'act', k: '活动',
       t: '新活动已开启',
-      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点右上角「同步最新数据」，最新的商店和关卡才会进来。'});
+      b: '「' + title + '」已经开放了，但页面里的数据可能还是旧的。点击「同步最新数据」按钮，最新的商店和关卡才会进来。'});
   } else if (info && info.type === 'phase'){
     pushNotice({id: 'phase:' + info.name, act: title, kind: 'phase', nm: info.name, k: '新关卡',
       t: '新关卡已开启',
-      b: '「' + info.name + '」已经开放。点右上角「同步最新数据」，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
+      b: '「' + info.name + '」已经开放。点击「同步最新数据」按钮，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
     out.push({id: 'phase:' + info.name, kind: 'phase', k: '新关卡',
       t: '新关卡已开启',
-      b: '「' + info.name + '」已经开放。点右上角「同步最新数据」，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
+      b: '「' + info.name + '」已经开放。点击「同步最新数据」按钮，新关卡的掉落数据才会进来，否则算出来的结果会偏小。'});
   }
   {
     var rp = (typeof REPO === 'string' && REPO && REPO.indexOf('__') !== 0) ? REPO : '';
@@ -1880,7 +2043,7 @@ document.addEventListener('keydown', function(e){
     <div class="mbody">
       <p id="modalLine1">关卡「<b id="modalPhase">—</b>」现已开启，开放时间 <b id="modalWhen">—</b>。</p>
       <div id="modalSteps">
-      <p class="mstep"><span class="mn">1</span>请点击右上角<b>「同步最新数据」</b>按钮，更新数据。</p>
+      <p class="mstep"><span class="mn">1</span>请点击<b>「同步最新数据」</b>按钮，更新数据。</p>
       <p class="mstep"><span class="mn">2</span>若更新数据失败，请点击<b>「导入本地文件」</b>手动更新：<span id="modalDl">去项目仓库下载 <code>活动数据.json</code>，再选中这个文件。</span></p>
       <p class="mignore">如果页面上的数据已经是最新的，忽略这条提醒。</p>
       <p>若都无法更新成功，请等待网站作者更新数据，或前往仓库下载完整文件运行脚本。</p>
