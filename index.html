@@ -1803,10 +1803,11 @@ function collectNotices(){
     if (seen.indexOf(title0) < 0){
       seen.push(title0);
       try{ localStorage.setItem('ark_seen_act', JSON.stringify(seen)); }catch(e){}
-      pushNotice({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
-        t: '活动已开启',
-        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
     }
+    // 只要见过这个活动，就摆一条在这儿。文案现算，不依赖 localStorage 里存没存过
+    out.push({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
+      t: '活动已开启',
+      b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
   }
   var info = (typeof staleKind === 'function') ? staleKind() : null;
   var title = (DATA.activity && DATA.activity.title) || '活动';

@@ -1806,10 +1806,8 @@ function purgeOldNotes(){
     // newact 是旧版本留下的重复通知，poll: 是以前自动更新时推的，这两类都不该再出现
     var keep = arr.filter(function(x){
       var id = String(x.id);
-      if (/^newact:/.test(id) || /^poll:/.test(id)) return false;
-      // 旧版本文案里带「右上角」的说法，现在按钮早就不在那儿了，别把旧的读出来
-      if (/右上角/.test(String(x.b || ''))) return false;
-      return true;
+      // newact: 是更早的重复通知，poll: 是以前自动更新时推的，这两类都不该再出现
+      return !/^newact:/.test(id) && !/^poll:/.test(id);
     });
     if (keep.length !== arr.length){
       localStorage.setItem('ark_notices', JSON.stringify(keep));
@@ -1841,6 +1839,11 @@ function collectNotices(){
     var _id = String(x.id);
     if (/^newact:/.test(_id) || /^poll:/.test(_id)) return;   // 旧版本留下的，直接丢
     if (x.act && x.act !== curAct) return;       // 只留当前活动的
+    if (/^first:/.test(_id)){                    // 文案以现在这份代码为准
+      out.push({id: _id, act: x.act, kind: 'act', k: '活动', t: '活动已开启',
+        b: '「' + (x.act || '') + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
+      return;
+    }
     out.push(x);
   });
   // 同步时发现活动换了，记一条
@@ -1856,10 +1859,11 @@ function collectNotices(){
     if (seen.indexOf(title0) < 0){
       seen.push(title0);
       try{ localStorage.setItem('ark_seen_act', JSON.stringify(seen)); }catch(e){}
-      pushNotice({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
-        t: '活动已开启',
-        b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
     }
+    // 只要见过这个活动，就摆一条在这儿。文案现算，不依赖 localStorage 里存没存过
+    out.push({id: 'first:' + title0, act: title0, kind: 'act', k: '活动',
+      t: '活动已开启',
+      b: '「' + title0 + '」的数据已经载入。想确认是不是最新的，点击「同步最新数据」按钮再取一次。'});
   }
   var info = (typeof staleKind === 'function') ? staleKind() : null;
   var title = (DATA.activity && DATA.activity.title) || '活动';
