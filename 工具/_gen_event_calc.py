@@ -1573,7 +1573,10 @@ function reloadData(silent){
         var dB = parseDT(d.built), cB = parseDT(DATA.built);
         if (dB && cB && dB <= cB){
           setSyncState('', '');
-          return finish(silent ? '' : '线上数据还是 ' + (d.built || '旧的') + '，比本地这份旧，已保留本地数据');
+          if (dB === cB){
+            return finish(silent ? '' : '线上和页面这份一样（' + (d.built || '') + '），已经是最新的了');
+          }
+          return finish(silent ? '' : '线上还是 ' + (d.built || '旧的') + '，比页面这份旧，已保留页面数据');
         }
         applyData(d, silent);
         setSyncState('', '');
@@ -1800,7 +1803,14 @@ function _readIds(){
 function purgeOldNotes(){
   try{
     var arr = JSON.parse(localStorage.getItem('ark_notices') || '[]');
-    var keep = arr.filter(function(x){ return !/^newact:/.test(String(x.id)); });
+    // newact 是旧版本留下的重复通知，poll: 是以前自动更新时推的，这两类都不该再出现
+    var keep = arr.filter(function(x){
+      var id = String(x.id);
+      if (/^newact:/.test(id) || /^poll:/.test(id)) return false;
+      // 旧版本文案里带「右上角」的说法，现在按钮早就不在那儿了，别把旧的读出来
+      if (/右上角/.test(String(x.b || ''))) return false;
+      return true;
+    });
     if (keep.length !== arr.length){
       localStorage.setItem('ark_notices', JSON.stringify(keep));
     }
@@ -1828,7 +1838,8 @@ function collectNotices(){
   var curAct = (DATA.activity && DATA.activity.title) || '';
   // 弹过又关掉的，都留在这儿
   _storedNotes().forEach(function(x){
-    if (/^newact:/.test(String(x.id))) return;   // 旧版本留下的重复通知，直接丢
+    var _id = String(x.id);
+    if (/^newact:/.test(_id) || /^poll:/.test(_id)) return;   // 旧版本留下的，直接丢
     if (x.act && x.act !== curAct) return;       // 只留当前活动的
     out.push(x);
   });
