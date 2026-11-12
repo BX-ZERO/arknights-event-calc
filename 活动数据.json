@@ -110,6 +110,70 @@
    "first": 80,
    "regular": false,
    "phase": "残照终尽"
+  },
+  {
+   "code": "TL-EX-1",
+   "sanity": 10,
+   "token": 0,
+   "first": 40,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-2",
+   "sanity": 10,
+   "token": 0,
+   "first": 40,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-3",
+   "sanity": 15,
+   "token": 0,
+   "first": 60,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-4",
+   "sanity": 15,
+   "token": 0,
+   "first": 60,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-5",
+   "sanity": 15,
+   "token": 0,
+   "first": 60,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-6",
+   "sanity": 15,
+   "token": 0,
+   "first": 60,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-7",
+   "sanity": 20,
+   "token": 0,
+   "first": 80,
+   "regular": false,
+   "phase": "长冬初青"
+  },
+  {
+   "code": "TL-EX-8",
+   "sanity": 20,
+   "token": 0,
+   "first": 80,
+   "regular": false,
+   "phase": "长冬初青"
   }
  ],
  "shop": [
@@ -788,28 +852,28 @@
    "name": "以3星评价完成TL-S-1",
    "token": 60,
    "kind": "task",
-   "open": true,
+   "open": false,
    "src": "晨曦所见证的"
   },
   {
    "name": "以3星评价完成TL-S-2",
    "token": 60,
    "kind": "task",
-   "open": true,
+   "open": false,
    "src": "晨曦所见证的"
   },
   {
    "name": "以3星评价完成TL-S-3",
    "token": 80,
    "kind": "task",
-   "open": true,
+   "open": false,
    "src": "晨曦所见证的"
   },
   {
    "name": "以3星评价完成TL-S-4",
    "token": 80,
    "kind": "task",
-   "open": true,
+   "open": false,
    "src": "晨曦所见证的"
   },
   {
@@ -915,73 +979,65 @@
   },
   {
    "name": "TL-EX-1 首通",
-   "token": null,
+   "token": 40,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-2 首通",
-   "token": null,
+   "token": 40,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-3 首通",
-   "token": null,
+   "token": 60,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-4 首通",
-   "token": null,
+   "token": 60,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-5 首通",
-   "token": null,
+   "token": 60,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-6 首通",
-   "token": null,
+   "token": 60,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-7 首通",
-   "token": null,
+   "token": 80,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
   {
    "name": "TL-EX-8 首通",
-   "token": null,
+   "token": 80,
    "kind": "stage",
-   "open": false,
-   "unknown": true,
+   "open": true,
    "src": "关卡信息",
    "phase": "长冬初青"
   },
@@ -1022,5 +1078,5 @@
    "phase": "世纪之春"
   }
  ],
- "built": "2026-11-08 20:13"
+ "built": "2026-11-12 12:19"
 }
