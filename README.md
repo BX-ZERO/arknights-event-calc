@@ -4,7 +4,7 @@
 
 网上没找到活动代币计算器，让大肥鱼搓了一个。
 
-发布网址：**https://bx-zero.github.io/arknights-event-calc/**
+使用网址：**https://bx-zero.github.io/arknights-event-calc/**
 
 ## 计算器使用方式
 
