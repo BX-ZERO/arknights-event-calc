@@ -1759,10 +1759,15 @@ function showSyncModal(forceType, forceName){
   var _gb = document.getElementById('modalGeneric');
   if (_sb) _sb.style.display = '';
   if (_gb) _gb.style.display = 'none';
-  // 取列表里那条通知的真实 id（可能是 act: / first: / phase: 三种之一）
+  // 取列表里那条通知的真实 id。按名字精确匹配，同一活动里有多个阶段时不能随手拿第一条
   var _k = (info.type === 'phase') ? 'phase' : 'act';
-  var _c = collectNotices().filter(function(n){ return n.kind === _k; })[0];
+  var _want = (info.type === 'phase') ? ('phase:' + info.name) : ('act:' + title);
+  var _all = collectNotices();
+  var _c = _all.filter(function(n){ return String(n.id) === _want; })[0] ||
+           _all.filter(function(n){ return n.kind === _k; })[0];
   window._curNoticeId = _c ? _c.id : '';
+  // 弹出来的这条就算用户已经看过了，直接记账，别等点「知道了」
+  if (window._curNoticeId) markReadOne(window._curNoticeId);
   openModal();
   refreshModalNext();
   return true;
