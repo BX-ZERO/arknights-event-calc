@@ -60,3 +60,12 @@ Releases中下载压缩包，解压后双击文件夹里的`更新数据.bat` �
 转载或基于本项目修改后再发布时，请保留 `LICENSE.md` 与这段说明，并注明数据来自 [PRTS Wiki](https://prts.wiki/)。
 
 如权利人认为有不妥之处，请联系删除相应内容。
+
+---
+
+<p align="center">
+  <a href="https://github.com/deepseek-ai/deepseek-harness">
+    <img src="img/dsh-badge.png" width="121" height="20" alt="powered by dsh">
+  </a>
+</p>
+
