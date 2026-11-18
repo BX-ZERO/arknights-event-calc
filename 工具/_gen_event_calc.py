@@ -75,8 +75,10 @@ HTML = r'''<!DOCTYPE html>
 <meta name="twitter:description" content="勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。">
 <meta name="twitter:image" content="__OGURL__">
 <title>活动代币计算器</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3QgeD0iMiIgeT0iMSIgd2lkdGg9IjI4IiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzA0ODhhOSIvPjxyZWN0IHg9IjciIHk9IjUuNSIgd2lkdGg9IjE4IiBoZWlnaHQ9IjcuNSIgcng9IjIuMiIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjciIHk9IjE3IiB3aWR0aD0iMTgiIGhlaWdodD0iMTAuNSIgcng9IjIuMiIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<link rel="alternate icon" href="favicon-32.png">
 <link rel="alternate icon" href="icon.png">
 <style>
   :root{
@@ -597,13 +599,12 @@ HTML = r'''<!DOCTYPE html>
   <div class="panel" style="margin-top:18px;color:var(--muted);font-size:12.5px;line-height:1.9">
     <b style="color:var(--text)">说明</b><br>
     代币与理智 1:1，普通关每 1 理智掉 1 个「__TOKEN__」。首通奖励不计入刷取折算。<br>
-    勾选「要换」＝这件算进计划；「已换」填你已经买掉的数量，会从还差里扣除。<br>
-    数据来源 PRTS wiki。页面打开时会自动取一次最新数据，也可以手动点击「同步最新数据」。换活动时用「导入本地文件」。<br>
-     非官方工具，不收费、无广告。游戏素材版权归鹰角网络，数据依 CC BY-NC-SA 4.0 使用，详细许可见仓库里的 LICENSE.md。<span class="ver">v1.1.2</span>
+    勾选「要换」＝这件算进计划；「已换」填你已经买掉的数量，会从还差里扣除。
     <div style="margin-top:12px;line-height:1">
       <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer"
          title="powered by dsh"><img src="img/dsh-badge.png" width="121" height="20"
          alt="powered by dsh" style="vertical-align:middle;border:0"></a>
+      <span class="ver" style="margin-left:10px;vertical-align:middle">v1.1.2</span>
     </div>
   </div>
 </div>
