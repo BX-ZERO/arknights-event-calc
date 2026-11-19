@@ -1,10 +1,10 @@
-# 明日方舟活动代币计算器
+﻿# 明日方舟活动代币计算器
 
 当前版本：**1.1.2**
 
 网上没找到活动代币计算器，让大肥鱼搓了一个。
 
-使用网址：**https://bx-zero.github.io/arknights-event-calc/**
+使用网址：**https://calc.bxzero.cn/**
 
 ## 计算器使用方式
 

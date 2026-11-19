@@ -45,10 +45,18 @@ if os.path.exists(cfg):
                 break
 say('数据仓库：', repo or '（未配置，只用本地服务）')
 
-# 分享卡片用的绝对地址（GitHub Pages 默认域名）
+# 分享卡片用的绝对地址：优先读项目根的 CNAME（自定义域名），没有才退回 github.io
 site_url = ''
 og_url = 'og.jpg'
-if repo and '/' in repo:
+_host = ''
+_cname = os.path.join(BASE, 'CNAME')
+if os.path.exists(_cname):
+    with open(_cname, encoding='utf-8') as f:
+        _host = f.read().strip()
+if _host:
+    site_url = 'https://%s/' % _host
+    og_url = site_url + 'og.jpg'
+elif repo and '/' in repo:
     _user, _name = [x.strip() for x in repo.split('/', 1)]
     if _user and _name:
         site_url = 'https://%s.github.io/%s/' % (_user, _name)
