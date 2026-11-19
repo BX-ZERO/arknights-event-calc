@@ -612,7 +612,7 @@ HTML = r'''<!DOCTYPE html>
       <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer"
          title="powered by dsh"><img src="img/dsh-badge.png" width="121" height="20"
          alt="powered by dsh" style="vertical-align:middle;border:0"></a>
-      <span class="ver" style="margin-left:10px;vertical-align:middle">v1.1.2</span>
+      <span class="ver" style="margin-left:10px;vertical-align:middle">v1.2.1</span>
     </div>
   </div>
 </div>
