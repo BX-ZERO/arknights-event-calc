@@ -71,16 +71,14 @@ HTML = r'''<!DOCTYPE html>
 <meta name="version" content="1.0.1">
 <meta name="theme-color" content="#0488a9">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="活动代币计算器">
-<meta property="og:title" content="活动代币计算器 · 明日方舟">
-<meta property="og:description" content="勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。">
+<meta property="og:site_name" content="明日方舟活动代币计算器">
+<meta property="og:title" content="明日方舟活动代币计算器">
 <meta property="og:image" content="__OGURL__">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="__SITEURL__">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="活动代币计算器 · 明日方舟">
-<meta name="twitter:description" content="勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。">
+<meta name="twitter:title" content="明日方舟活动代币计算器">
 <meta name="twitter:image" content="__OGURL__">
 <title>活动代币计算器</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
