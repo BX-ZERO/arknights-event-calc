@@ -69,6 +69,10 @@ HTML = r'''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="算清明日方舟活动还要刷多少把、多少理智。勾选想要的商品，填上已换数量，直接给出还差多少代币。">
 <meta name="version" content="1.0.1">
+<link rel="canonical" href="__SITEURL__">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"明日方舟活动代币计算器","url":"__SITEURL__","description":"勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (browser)","inLanguage":"zh-CN","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
 <meta name="theme-color" content="#0488a9">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="明日方舟活动代币计算器">
@@ -80,7 +84,7 @@ HTML = r'''<!DOCTYPE html>
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="明日方舟活动代币计算器">
 <meta name="twitter:image" content="__OGURL__">
-<title>活动代币计算器</title>
+<title>明日方舟活动代币计算器</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
@@ -2131,6 +2135,7 @@ html = HTML.replace('__NAME__', data['activity'].get('name') or data['activity']
 html = html.replace('__TOKEN__', data.get('token') or '代币')
 html = html.replace('__PAYLOAD__', payload)
 html = html.replace('__REPO__', repo)
+html = html.replace('__SITEURL__', site_url)
 html = html.replace('__OGURL__', og_url)
 html = html.replace('__SITEURL__', site_url)
 html = html.replace('__DATAVER__', str(data.get('built') or '0').replace(' ', '-').replace(':', ''))
@@ -2147,3 +2152,24 @@ if os.path.exists(_stale):
         os.remove(_stale)
     except OSError:
         pass
+
+
+# ---- 顺手写一份 robots.txt 与 sitemap.xml（SEO 用）----
+robots = "User-agent: *\nAllow: /\n\nSitemap: " + site_url + "sitemap.xml\n"
+with open(os.path.join(BASE, "robots.txt"), "w", encoding="utf-8", newline="\n") as f:
+    f.write(robots)
+
+from datetime import date
+today = date.today().isoformat()
+sitemap = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+           '  <url>\n'
+           '    <loc>' + site_url + '</loc>\n'
+           '    <lastmod>' + today + '</lastmod>\n'
+           '    <changefreq>daily</changefreq>\n'
+           '    <priority>1.0</priority>\n'
+           '  </url>\n'
+           '</urlset>\n')
+with open(os.path.join(BASE, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as f:
+    f.write(sitemap)
+say("robots.txt / sitemap.xml 已写入：", site_url)
