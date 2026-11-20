@@ -836,13 +836,22 @@ function fmtCd(ms){
   if (h > 0) return h + ' 小时 ' + mi + ' 分 ' + se + ' 秒';
   return mi + ' 分 ' + se + ' 秒';
 }
+// 下一个整活动的预告，跨活动信息，不属于当前 DATA
+var NEXT_EVENT = { title: '雪山降临1101', sub: '复刻', start: '2026-11-22 04:00', label: '11 月 22 日 04:00' };
 var _cdTimer = null;
 function tickCd(){
+  var now = Date.now();
   var el = document.querySelector('#notice .cd');
-  if (!el) return;
-  var np = nextPhase(Date.now());
-  if (!np || np.t - Date.now() <= 0){ renderNotice(); return; }
-  el.textContent = fmtCd(np.t - Date.now());
+  if (el){
+    var np = nextPhase(now);
+    if (!np || np.t - now <= 0){ renderNotice(); return; }
+    el.textContent = fmtCd(np.t - now);
+  }
+  var el2 = document.querySelector('#notice .cd2');
+  if (el2){
+    var t2 = parseDT(NEXT_EVENT.start);
+    if (t2) el2.textContent = (t2 - now > 0) ? fmtCd(t2 - now) : '已开启';
+  }
 }
 function stopCd(){
   if (_cdTimer){ clearInterval(_cdTimer); _cdTimer = null; }
@@ -884,10 +893,13 @@ function renderNotice(){
   } else if (st && now < st){
     html = '<b>活动还没有开始。</b><span class="sub">开始时间 ' + a.start + '。</span>';
   } else {
-    // 没有下一阶段、也没结束：不显示任何提示
-    box.className = 'notice';
-    box.innerHTML = '';
-    return;
+    // 没有下一阶段、也没结束：如果下一个活动的预告还在将来，就只显示它
+    var _t0 = parseDT(NEXT_EVENT.start);
+    if (!(_t0 && _t0 - now > 0)){
+      box.className = 'notice';
+      box.innerHTML = '';
+      return;
+    }
   }
 
   // 只在「真落后」时提醒：有阶段已经开放，但数据里还没有它的关卡。
@@ -895,13 +907,22 @@ function renderNotice(){
   var lag = (typeof staleKind === 'function') ? staleKind() : null;
   if (lag)
     html += '<span class="sub">数据抓取自 ' + (DATA.built || '较早') + '，新开放的阶段还没进来，请点击「同步最新数据」按钮。</span>';
+  var _ne = NEXT_EVENT, _neT = parseDT(_ne.start);
+  if (_neT && _neT - now > 0){
+    html += '<span class="sub">SideStory「<b>' + _ne.title + '</b>」' + _ne.sub +
+      '将于 ' + (_ne.label || _ne.start) + ' 开启，还有 <span class="cd2"></span>。</span>';
+  }
   box.className = 'notice show' + (warn ? ' notice-warn' : '');
   var ico = isCd
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="13.4" r="7.2"/><path d="M12 9.9v3.7l2.4 1.5"/><path d="M5.2 4.6 7 2.9M18.8 4.6 17 2.9"/></svg>'
     : '!';
   box.innerHTML = '<div class="ic">' + ico + '</div><div class="nt">' + html + '</div>';
-  if (isCd){
+  var _c2 = box.querySelector('.cd2');
+  if (_c2){ _c2.textContent = fmtCd(_neT - now); }
+  var _hasNext = parseDT(NEXT_EVENT.start) > now;
+  if (isCd || _hasNext){
     if (!_cdTimer) _cdTimer = setInterval(tickCd, 1000);
+    if (!isCd && !_hasNext) stopCd();
   } else {
     stopCd();
   }
@@ -1627,10 +1648,10 @@ function phaseHasData(nm){
     return o.kind === 'stage' && o.phase === nm;
   }).map(function(o){ return String(o.name || '').split(' ')[0]; });
   if (!codes.length) return false;
+  // 代号出现在关卡列表里就算有数据。EX/S 关（regular=false、token=0）
+  // 也算——它们本来就不刷代币，只用来判断 wiki 有没有补上这一批。
   return codes.some(function(c){
-    return (DATA.stages || []).some(function(s){
-      return s.code === c && s.regular && s.token > 0;
-    });
+    return (DATA.stages || []).some(function(s){ return s.code === c; });
   });
 }
 function firstStageCode(){
