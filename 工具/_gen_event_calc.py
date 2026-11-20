@@ -69,6 +69,7 @@ HTML = r'''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="算清明日方舟活动还要刷多少把、多少理智。勾选想要的商品，填上已换数量，直接给出还差多少代币。">
 <meta name="version" content="1.0.1">
+<meta name="msvalidate.01" content="4B2B5BF0924F32B56AACF2A641BB71BB">
 <link rel="canonical" href="__SITEURL__">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"明日方舟活动代币计算器","url":"__SITEURL__","description":"勾选想要的商品，算清还差多少代币、还要刷几把、多少理智。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (browser)","inLanguage":"zh-CN","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
