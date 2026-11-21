@@ -615,7 +615,7 @@ HTML = r'''<!DOCTYPE html>
       <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer"
          title="powered by dsh"><img src="img/dsh-badge.png" width="121" height="20"
          alt="powered by dsh" style="vertical-align:middle;border:0"></a>
-      <span class="ver" style="margin-left:10px;vertical-align:middle">v1.2.1</span>
+      <span class="ver" style="margin-left:10px;vertical-align:middle">v1.2.2</span>
     </div>
   </div>
 </div>
@@ -948,7 +948,11 @@ function renderNotice(){
   if (isCd){
     var left = np.t - now;
     warn = left < 3600000;
-    html = '距离「<b>' + np.name + '</b>」开放还有 ' +
+    var _isRerun = !!(DATA.activity && DATA.activity.isRerun);
+    var _cdWho = _isRerun
+      ? ((DATA.activity.name || DATA.activity.title) + '复刻')
+      : ('「' + np.name + '」');
+    html = '距离 ' + (_isRerun ? _cdWho : ('「<b>' + np.name + '</b>」')) + ' 开放还有 ' +
       '<span class="cd">' + fmtCd(left) + '</span>' +
       '<span class="sub">开放时间 ' + np.start + '。届时请点击「同步最新数据」按钮，新关卡的掉落数据才会进来。</span>';
   } else if (en && now > en){
@@ -977,7 +981,9 @@ function renderNotice(){
   if (lag)
     html += '<span class="sub">数据抓取自 ' + (DATA.built || '较早') + '，新开放的阶段还没进来，请点击「同步最新数据」按钮。</span>';
   var _ne = NEXT_EVENT, _neT = parseDT(_ne.start);
-  if (_neT && _neT - now > 0){
+  // 「下一个活动」如果就是当前活动本身，就别重复报一次
+  var _neSame = (((DATA.activity || {}).title) || '').indexOf(NEXT_EVENT.title) >= 0;
+  if (_neT && !_neSame && _neT - now > 0){
     html += '<span class="sub">SideStory「<b>' + _ne.title + '</b>」' + _ne.sub +
       '将于 ' + (_ne.label || _ne.start) + ' 开启，还有 <span class="cd2"></span>。</span>';
   }
@@ -1779,15 +1785,26 @@ function showSyncModal(forceType, forceName){
         ' 下载 <code>活动数据.json</code>，再选中这个文件。'
       : '去项目仓库下载 <code>活动数据.json</code>，再选中这个文件。';
   }
-  if (t1) t1.innerHTML = 'SideStory「' + title + '」现已开启 · <b>请更新数据</b>';
-    if (line1) line1.innerHTML = '剧情关卡「<b>' + nm0 + '</b>」的开放时间是 <b>' + st0 + '</b>，现已开启。';
+  var _rw = (DATA.activity && DATA.activity.isRerun) ? '复刻' : '';
+    if (t1) t1.innerHTML = 'SideStory「' + title + '」' + _rw + ' 现已开启 · <b>请更新数据</b>';
+    if (line1){
+      if (DATA.activity && DATA.activity.isRerun){
+        line1.innerHTML = '';          // 复刻一次开全部节点，不报具体关卡
+        line1.style.display = 'none';
+        line1.classList.remove('flashline');
+      } else {
+        line1.innerHTML = '剧情关卡「<b>' + nm0 + '</b>」的开放时间是 <b>' + st0 + '</b>，现已开启。';
+      }
+    }
   } else {
     var hit = (DATA.phases || []).filter(function(x){ return x.name === info.name; })[0];
     if (t1) t1.innerHTML = 'SideStory「' + title + '」<b>新关卡开启</b>';
     if (line1) line1.innerHTML = '关卡「<b>' + info.name + '</b>」现已开启，开放时间 <b>' +
       (hit ? hit.start : '—') + '</b>。';
   }
-  if (line1){ line1.style.display = ''; line1.classList.add('flashline'); }
+  if (line1 && !(DATA.activity && DATA.activity.isRerun)){
+    line1.style.display = ''; line1.classList.add('flashline');
+  }
   var _sb = document.getElementById('modalSteps');
   var _gb = document.getElementById('modalGeneric');
   if (_sb) _sb.style.display = '';
@@ -1943,6 +1960,14 @@ function collectNotices(){
   // 同一个活动里，「act:」与「first:」讲的是同一件事，只留 act:
   var hasAct = uniq.some(function(n){ return /^act:/.test(String(n.id)); });
   if (hasAct) uniq = uniq.filter(function(n){ return !/^first:/.test(String(n.id)); });
+  // 活动还没到开放时间：别报「已开启」。等时间到了，刷新页面自然就出来了。
+  var _st0 = parseDT(DATA.activity && DATA.activity.start);
+  if (_st0 && Date.now() < _st0 && !FORCE_SYNC_POPUP){
+    uniq = uniq.filter(function(n){
+      var id = String(n.id);
+      return !/^first:/.test(id) && !/^act:/.test(id);
+    });
+  }
   return uniq;
 }
 function renderNotices(list){
